@@ -1,39 +1,29 @@
 name: Compile
 
-# Controls when the action will run. 
 on:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "deploy"
   build:
-    # The type of runner that the job will run on
-    runs-on:  ubuntu-20.04
-  
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    runs-on: ubuntu-20.04
+
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with:
           repository: Coolpad-Note-3-Lite-Development/android_kernel_xiaomi_onc
           ref: test
 
-      # Setup the environment
       - name: Setup
         run: |
           bash -c "$(wget -O- https://github.com/crevanth/kernel_builder/raw/main/.github/workflows/setup.sh)"
 
-      # Compile the kernel
       - name: Compile
         run: |
           bash -c "$(wget -O- https://github.com/crevanth/kernel_builder/raw/main/.github/workflows/compile.sh)"
 
-      # Make zip and Send it to telegram
       - name: Make zip and send
         env:
-          BOT_TOKEN : ${{secrets.BOT_TOKEN}}
-          CHAT_ID : ${{secrets.CHAT_ID}}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
         run: |
           bash -c "$(wget -O- https://github.com/crevanth/kernel_builder/raw/main/.github/workflows/send2tg.sh)"
