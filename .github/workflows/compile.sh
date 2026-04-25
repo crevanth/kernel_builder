@@ -11,6 +11,29 @@ function compile() {
 
     make O=out onc_defconfig
 
+    # Verify config after generation
+    echo "=== Config check ==="
+    grep "CONFIG_ARCH_MSM8953" out/.config
+    grep "CONFIG_ARCH_SDM632" out/.config
+
+    # Verify onclite in Makefile
+    echo "=== Makefile check ==="
+    grep -n "onclite" arch/arm64/boot/dts/qcom/Makefile
+
+    # Verify onclite folder
+    echo "=== onclite folder ==="
+    ls arch/arm64/boot/dts/qcom/onclite/
+
+    # Build DTBs separately first with verbose
+    echo "=== Building DTBs ==="
+    make -j$(nproc --all) O=out \
+        ARCH=arm64 \
+        CROSS_COMPILE=aarch64-linux-android- \
+        CROSS_COMPILE_ARM32=arm-linux-androideabi- \
+        dtbs V=1 2>&1 | grep -E "onclite|DTC|dtb|error" | head -50
+
+    # Full build
+    echo "=== Full build ==="
     make -j$(nproc --all) O=out \
         ARCH=arm64 \
         CROSS_COMPILE=aarch64-linux-android- \
