@@ -9,9 +9,15 @@ function compile() {
     sed -i 's/YYLTYPE yylloc/extern YYLTYPE yylloc/' \
         scripts/dtc/dtc-lexer.lex.c_shipped
         
-    # Fix gcc-wrapper.py Python 3 compatibility
-    sed -i 's/print >> sys.stderr, line,/sys.stderr.write(line.decode("utf-8", "ignore"))/g' \
-        scripts/gcc-wrapper.py
+    # Bypass legacy Python 2 gcc-wrapper completely
+    cat << 'EOF' > scripts/gcc-wrapper.py
+#!/usr/bin/env python3
+import sys
+import subprocess
+sys.exit(subprocess.call(sys.argv[1:]))
+EOF
+    chmod +x scripts/gcc-wrapper.py
+
         
     make O=out onc_defconfig
 
