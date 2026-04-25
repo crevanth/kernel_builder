@@ -8,7 +8,11 @@ function compile() {
     # Fix dtc yylloc — GCC 10+ host compiler issue
     sed -i 's/YYLTYPE yylloc/extern YYLTYPE yylloc/' \
         scripts/dtc/dtc-lexer.lex.c_shipped
-
+        
+    # Fix gcc-wrapper.py Python 3 compatibility
+    sed -i 's/print >> sys.stderr, line,/sys.stderr.write(line)/g' \
+        scripts/gcc-wrapper.py
+        
     make O=out onc_defconfig
 
     # Verify config after generation
