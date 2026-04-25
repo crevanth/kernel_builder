@@ -24,9 +24,9 @@ jobs:
       - name: Check DTB
         run: |
           echo "=== Checking onclite DTB ==="
-          if [ -f out/arch/arm64/boot/dts/qcom/onclite/onclite.dtb ]; then
+          if [ -f out/arch/arm64/boot/dts/qcom/onclite.dtb ]; then
             echo "✓ onclite.dtb built successfully"
-            ls -la out/arch/arm64/boot/dts/qcom/onclite/
+            ls -la out/arch/arm64/boot/dts/qcom/
           else
             echo "✗ onclite.dtb NOT found"
             echo "=== All DTBs built ==="
