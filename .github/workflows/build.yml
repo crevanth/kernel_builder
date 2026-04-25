@@ -17,18 +17,18 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with:
-          repository: Dhina17/android_kernel_xiaomi_onclite
-          ref: lineage-19.1
+          repository: Coolpad-Note-3-Lite-Development/android_kernel_xiaomi_onc
+          ref: test
 
       # Setup the environment
       - name: Setup
         run: |
-          bash -c "$(wget -O- https://github.com/Dhina17/kernel_builder/raw/main/.github/workflows/setup.sh)"
+          bash -c "$(wget -O- https://github.com/crevanth/kernel_builder/raw/main/.github/workflows/setup.sh)"
 
       # Compile the kernel
       - name: Compile
         run: |
-          bash -c "$(wget -O- https://github.com/Dhina17/kernel_builder/raw/main/.github/workflows/compile.sh)"
+          bash -c "$(wget -O- https://github.com/crevanth/kernel_builder/raw/main/.github/workflows/compile.sh)"
 
       # Make zip and Send it to telegram
       - name: Make zip and send
@@ -36,4 +36,4 @@ jobs:
           BOT_TOKEN : ${{secrets.BOT_TOKEN}}
           CHAT_ID : ${{secrets.CHAT_ID}}
         run: |
-          bash -c "$(wget -O- https://github.com/Dhina17/kernel_builder/raw/main/.github/workflows/send2tg.sh)"
+          bash -c "$(wget -O- https://github.com/crevanth/kernel_builder/raw/main/.github/workflows/send2tg.sh)"
