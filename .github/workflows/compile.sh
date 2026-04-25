@@ -1,9 +1,12 @@
-# Kernel compile script
 ROOT_DIR=$(pwd)
 
 function compile() {
     export ARCH=arm64
     export PATH="${ROOT_DIR}/clang/bin:${ROOT_DIR}/gcc/bin:${PATH}"
+
+    # Fix dtc yylloc multiple definition
+    sed -i 's/YYLTYPE yylloc/extern YYLTYPE yylloc/' \
+        scripts/dtc/dtc-lexer.lex.c_shipped
 
     make O=out onc_defconfig
 
