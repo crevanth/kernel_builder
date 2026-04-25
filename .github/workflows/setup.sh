@@ -5,11 +5,15 @@ function setup() {
         libtool shtool python3 m4 gcc zlib1g-dev \
         flex bison libssl-dev libelf-dev device-tree-compiler
 
+    # Fix OpenSSL 3.0 issue
+    sudo apt install -y libssl-dev
+    export OPENSSL_DIR=/usr
+
     # GCC aarch64 toolchain
     git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 \
         -b android-10.0.0_r47 --depth=1 gcc64
 
-    # GCC arm toolchain (needed for vdso)
+    # GCC arm toolchain
     git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 \
         -b android-10.0.0_r47 --depth=1 gcc32
 
