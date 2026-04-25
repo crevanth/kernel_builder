@@ -5,17 +5,13 @@ function setup() {
         libtool shtool python3 m4 gcc zlib1g-dev \
         flex bison libssl-dev libelf-dev device-tree-compiler
 
-    # Fix OpenSSL 3.0 issue
-    sudo apt install -y libssl-dev
-    export OPENSSL_DIR=/usr
+    # LineageOS GCC aarch64
+    git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 \
+        -b cm-14.1 --depth=1 gcc64
 
-    # GCC aarch64 toolchain
-    git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 \
-        -b android-10.0.0_r47 --depth=1 gcc64
-
-    # GCC arm toolchain
-    git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 \
-        -b android-10.0.0_r47 --depth=1 gcc32
+    # LineageOS GCC arm32 (for vdso)
+    git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 \
+        -b cm-14.1 --depth=1 gcc32
 
     # AnyKernel3
     git clone https://github.com/crsvt/AnyKernel3
