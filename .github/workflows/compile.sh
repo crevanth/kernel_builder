@@ -5,23 +5,9 @@ function compile() {
     export SUBARCH=arm64
     export PATH="${ROOT_DIR}/gcc64/bin:${ROOT_DIR}/gcc32/bin:${PATH}"
 
-    # Fix dtc yylloc — GCC 10+ issue
+    # Fix dtc yylloc — GCC 10+ host compiler issue
     sed -i 's/YYLTYPE yylloc/extern YYLTYPE yylloc/' \
         scripts/dtc/dtc-lexer.lex.c_shipped
-
-    # Fix sign-file OpenSSL 3.0 issue
-    sed -i 's/ERR_get_error_line/ERR_get_error/g' \
-        scripts/sign-file.c
-    sed -i '/ENGINE_load_builtin_engines/d' \
-        scripts/sign-file.c
-    sed -i '/ENGINE_by_id/d' \
-        scripts/sign-file.c
-    sed -i '/ENGINE_init/d' \
-        scripts/sign-file.c
-    sed -i '/ENGINE_ctrl_cmd_string/d' \
-        scripts/sign-file.c
-    sed -i '/ENGINE_load_private_key/d' \
-        scripts/sign-file.c
 
     make O=out onc_defconfig
 
