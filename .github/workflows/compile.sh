@@ -10,7 +10,7 @@ function compile() {
         scripts/dtc/dtc-lexer.lex.c_shipped
         
     # Fix gcc-wrapper.py Python 3 compatibility
-    sed -i 's/print >> sys.stderr, line,/sys.stderr.write(line)/g' \
+    sed -i 's/print >> sys.stderr, line,/sys.stderr.write(line.decode("utf-8", "ignore"))/g' \
         scripts/gcc-wrapper.py
         
     make O=out onc_defconfig
