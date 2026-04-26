@@ -1,3 +1,4 @@
+#!/bin/bash
 ROOT_DIR=$(pwd)
 
 function compile() {
@@ -8,8 +9,8 @@ function compile() {
     # Fix dtc yylloc — GCC 10+ host compiler issue
     sed -i 's/YYLTYPE yylloc/extern YYLTYPE yylloc/' \
         scripts/dtc/dtc-lexer.lex.c_shipped
-        
-    # Bypass legacy Python 2 gcc-wrapper completely
+
+    # Bypass legacy Python 2 gcc-wrapper
     cat << 'EOF' > scripts/gcc-wrapper.py
 #!/usr/bin/env python3
 import sys
@@ -18,32 +19,15 @@ sys.exit(subprocess.call(sys.argv[1:]))
 EOF
     chmod +x scripts/gcc-wrapper.py
 
-        
-    make O=out onc_defconfig
+    make O=out vendor/onclite-perf_defconfig
 
-    # Verify config after generation
     echo "=== Config check ==="
-    grep "CONFIG_ARCH_MSM8953" out/.config
-    grep "CONFIG_ARCH_SDM632" out/.config
+    grep "CONFIG_MACH_XIAOMI_ONCLITE" out/.config
 
-    # Verify onclite in Makefile
     echo "=== Makefile check ==="
-    grep -n "onclite" arch/arm64/boot/dts/qcom/Makefile
+    grep -n "onclite" arch/arm64/boot/dts/vendor-legacy/qcom/Makefile
 
-    # Verify onclite folder
-    echo "=== onclite folder ==="
-    ls arch/arm64/boot/dts/qcom/onclite/
-
-    # Build DTBs separately first with verbose
-    echo "=== Building DTBs ==="
-    make -j$(nproc --all) O=out \
-        ARCH=arm64 \
-        CROSS_COMPILE=aarch64-linux-android- \
-        CROSS_COMPILE_ARM32=arm-linux-androideabi- \
-        dtbs V=1 2>&1 | grep -E "onclite|DTC|dtb|error" | head -50
-
-    # Full build
-    echo "=== Full build ==="
+    echo "=== Building ==="
     make -j$(nproc --all) O=out \
         ARCH=arm64 \
         CROSS_COMPILE=aarch64-linux-android- \
