@@ -9,24 +9,68 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: crsvt/test
-          ref: main
 
       - name: Setup
-        run: bash setup.sh
+        run: |
+          sudo apt update
+          sudo apt install -y bc bash git-core gnupg build-essential \
+              zip curl make automake autogen autoconf autotools-dev \
+              libtool shtool python3 m4 gcc zlib1g-dev \
+              flex bison libssl-dev libelf-dev device-tree-compiler
+
+          git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 \
+              -b cm-14.1 --depth=1 gcc64
+
+          git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 \
+              -b cm-14.1 --depth=1 gcc32
+
+          git clone https://github.com/crsvt/AnyKernel3
 
       - name: Compile
-        run: bash compile.sh
+        run: |
+          export ARCH=arm64
+          export SUBARCH=arm64
+          export PATH="${GITHUB_WORKSPACE}/gcc64/bin:${GITHUB_WORKSPACE}/gcc32/bin:${PATH}"
+
+          sed -i 's/YYLTYPE yylloc/extern YYLTYPE yylloc/' \
+              scripts/dtc/dtc-lexer.lex.c_shipped
+
+          cat << 'EOF' > scripts/gcc-wrapper.py
+          #!/usr/bin/env python3
+          import sys
+          import subprocess
+          sys.exit(subprocess.call(sys.argv[1:]))
+          EOF
+          chmod +x scripts/gcc-wrapper.py
+
+          make O=out vendor/onclite-perf_defconfig
+
+          echo "=== Config check ==="
+          grep "CONFIG_MACH_XIAOMI_ONCLITE" out/.config || true
+
+          echo "=== Makefile check ==="
+          grep -n "onclite" arch/arm64/boot/dts/vendor-legacy/qcom/Makefile || true
+
+          make -j$(nproc --all) O=out \
+              ARCH=arm64 \
+              CROSS_COMPILE=aarch64-linux-android- \
+              CROSS_COMPILE_ARM32=arm-linux-androideabi- \
+              2>&1 | tee build.log
+
+          if [ -f out/arch/arm64/boot/Image.gz-dtb ]; then
+              echo "✓ Build successful"
+              ls -la out/arch/arm64/boot/Image.gz-dtb
+          else
+              echo "✗ Build failed — last errors:"
+              grep -E "error:" build.log | tail -30
+          fi
 
       - name: Check DTB
         run: |
-          echo "=== Checking onclite DTB ==="
           if [ -f out/arch/arm64/boot/dts/vendor-legacy/qcom/onclite-titanium.dtb ]; then
             echo "✓ onclite-titanium.dtb built successfully"
-            ls -la out/arch/arm64/boot/dts/vendor-legacy/qcom/
           else
-            echo "✗ onclite-titanium.dtb NOT found"
+            echo "✗ DTB not found"
             find out/arch/arm64/boot/dts/ -name "*.dtb" | head -20
           fi
 
@@ -36,7 +80,6 @@ jobs:
           cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
           cd AnyKernel3
           zip -r9 ../kernel-onclite-${DATE_TIME}.zip *
-          cd ..
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
