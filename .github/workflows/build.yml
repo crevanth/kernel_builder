@@ -10,26 +10,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: Coolpad-Note-3-Lite-Development/android_kernel_xiaomi_onc
-          ref: test
+          repository: crsvt/test
+          ref: main
 
       - name: Setup
-        run: |
-          bash -c "$(wget -O- https://github.com/crevanth/kernel_builder/raw/main/.github/workflows/setup.sh)"
+        run: bash setup.sh
 
       - name: Compile
-        run: |
-          bash -c "$(wget -O- https://github.com/crevanth/kernel_builder/raw/main/.github/workflows/compile.sh)"
+        run: bash compile.sh
 
       - name: Check DTB
         run: |
           echo "=== Checking onclite DTB ==="
-          if [ -f out/arch/arm64/boot/dts/qcom/onclite.dtb ]; then
-            echo "✓ onclite.dtb built successfully"
-            ls -la out/arch/arm64/boot/dts/qcom/
+          if [ -f out/arch/arm64/boot/dts/vendor-legacy/qcom/onclite-titanium.dtb ]; then
+            echo "✓ onclite-titanium.dtb built successfully"
+            ls -la out/arch/arm64/boot/dts/vendor-legacy/qcom/
           else
-            echo "✗ onclite.dtb NOT found"
-            echo "=== All DTBs built ==="
+            echo "✗ onclite-titanium.dtb NOT found"
             find out/arch/arm64/boot/dts/ -name "*.dtb" | head -20
           fi
 
